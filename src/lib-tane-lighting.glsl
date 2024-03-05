@@ -2,7 +2,13 @@ import lib-sampler.glsl
 import lib-vectors.glsl
 import lib-env.glsl
 
-const vec3 light_pos = vec3(10.0, 10.0, 10.0);
+// const vec3 light_pos = vec3(10.0, 10.0, 10.0);
+
+//: param custom { "default": 60, "label": "Light Yaw", "min": -180.0, "max": 180.0}
+uniform float u_light_yaw;
+
+//: param custom { "default": 60, "label": "Light Pitch", "min": -180.0, "max": 180.0}
+uniform float u_light_pitch;
 
 //: param custom { "default": 0.8, "label": "Material Diffuse", "widget": "color" } 
 uniform vec3 u_mat_diffuse;
@@ -19,7 +25,7 @@ uniform vec3 u_light_diffuse;
 //: param custom { "default": 1, "label": "Light Specular", "widget": "color" } 
 uniform vec3 u_light_specular;
 
-//: param custom { "default": 1, "label": "Light Ambient", "widget": "color" } 
+//: param custom { "default": 0.2, "label": "Light Ambient", "widget": "color" } 
 uniform vec3 u_light_ambient;
 
 //: param custom { "default": 128, "min": 0.001, "max": 128, "label": "Material Spec Power" } 
@@ -56,7 +62,16 @@ LightingOutput compute_tane_lighting(LocalVectors vectors, vec3 diffuse, vec3 sp
 LightingOutput compute_tane_lighting(V2F inputs)
 {
   LocalVectors frame = computeLocalFrame(inputs);
-  vec3 vecToLight = normalize(light_pos - inputs.position);
+  // vec3 vecToLight = normalize(light_pos - inputs.position);
+
+  const float deg2rad = 3.14159265358979323846 / 180.0;
+
+  vec3 lightDir = vec3(cos(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_pitch * deg2rad));
+
+  // Shuffle coordinates.
+  lightDir.xyz = lightDir.xzy;
+  vec3 vecToLight = normalize(lightDir);
+
   LightingOutput output = compute_tane_lighting(frame, u_light_diffuse, u_light_specular, vecToLight);
 
   // Add ambient.
