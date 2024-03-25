@@ -4,7 +4,7 @@ import lib-env.glsl
 
 // const vec3 light_pos = vec3(10.0, 10.0, 10.0);
 
-//: param custom { "default": 60, "label": "Light Yaw", "min": -180.0, "max": 180.0}
+//: param auto environment_rotation
 uniform float u_light_yaw;
 
 //: param custom { "default": 60, "label": "Light Pitch", "min": -180.0, "max": 180.0}
@@ -66,13 +66,18 @@ LightingOutput compute_tane_lighting(V2F inputs)
 
   const float deg2rad = 3.14159265358979323846 / 180.0;
 
-  vec3 lightDir = vec3(cos(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_pitch * deg2rad));
+  // vec3 lightDir = vec3(cos(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_pitch * deg2rad));
+  vec3 lightDir = vec3(cos(-u_light_yaw * M_2PI) * cos(u_light_pitch * deg2rad), sin(-u_light_yaw * M_2PI) * cos(u_light_pitch * deg2rad), sin(u_light_pitch * deg2rad));
 
   // Shuffle coordinates.
   lightDir.xyz = lightDir.xzy;
   vec3 vecToLight = normalize(lightDir);
 
   LightingOutput output = compute_tane_lighting(frame, u_light_diffuse, u_light_specular, vecToLight);
+
+  float shadowFactor = getShadowFactor();
+  output.diffColor *= shadowFactor;
+  output.specColor *= shadowFactor;
 
   // Add ambient.
   output.diffColor += u_mat_diffuse * u_light_ambient;
