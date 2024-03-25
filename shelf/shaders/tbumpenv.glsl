@@ -4,11 +4,8 @@ import lib-env.glsl
 
 // const vec3 light_pos = vec3(10.0, 10.0, 10.0);
 
-//: param auto environment_rotation
-uniform float u_light_yaw;
-
-//: param custom { "default": 60, "label": "Light Pitch", "min": -180.0, "max": 180.0}
-uniform float u_light_pitch;
+//: param auto main_light 
+uniform vec4 uniform_main_light;
 
 //: param custom { "default": 0.8, "label": "Material Diffuse", "widget": "color" } 
 uniform vec3 u_mat_diffuse;
@@ -67,10 +64,10 @@ LightingOutput compute_tane_lighting(V2F inputs)
   const float deg2rad = 3.14159265358979323846 / 180.0;
 
   // vec3 lightDir = vec3(cos(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_yaw * deg2rad) * cos(u_light_pitch * deg2rad), sin(u_light_pitch * deg2rad));
-  vec3 lightDir = vec3(cos(-u_light_yaw * M_2PI) * cos(u_light_pitch * deg2rad), sin(-u_light_yaw * M_2PI) * cos(u_light_pitch * deg2rad), sin(u_light_pitch * deg2rad));
+  vec3 lightDir = uniform_main_light.xyz;
 
   // Shuffle coordinates.
-  lightDir.xyz = lightDir.xzy;
+  // lightDir.xyz = lightDir.xzy;
   vec3 vecToLight = normalize(lightDir);
 
   LightingOutput output = compute_tane_lighting(frame, u_light_diffuse, u_light_specular, vecToLight);
