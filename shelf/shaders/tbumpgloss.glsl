@@ -37,7 +37,7 @@ struct LightingOutput
 
 LightingOutput compute_tane_lighting(LocalVectors vectors, vec3 diffuse, vec3 specular, vec3 vecToLight)
 {
-  LightingOutput output;
+  LightingOutput lightOutput;
 
   mat3 TBN = mat3(vectors.tangent, vectors.bitangent, vectors.normal);
 
@@ -47,13 +47,13 @@ LightingOutput compute_tane_lighting(LocalVectors vectors, vec3 diffuse, vec3 sp
   float ndl = max(0.0, dot(vecToLight, vectors.normal));
   vec3 halfAngle = normalize(vectors.eye + vecToLight);
 
-  output.diffColor = ndl * diffuse * u_mat_diffuse;
+  lightOutput.diffColor = ndl * diffuse * u_mat_diffuse;
 
   float spec = dot(vectors.normal, halfAngle);
   spec = pow(max(spec, 0.0), max(u_spec_power, 0.001));
-  output.specColor = spec * specular * u_mat_specular;
+  lightOutput.specColor = spec * specular * u_mat_specular;
 
-  return output;
+  return lightOutput;
 }
 
 LightingOutput compute_tane_lighting(V2F inputs)
@@ -70,20 +70,20 @@ LightingOutput compute_tane_lighting(V2F inputs)
   // lightDir.xyz = lightDir.xzy;
   vec3 vecToLight = normalize(lightDir);
 
-  LightingOutput output = compute_tane_lighting(frame, u_light_diffuse, u_light_specular, vecToLight);
+  LightingOutput lightOutput = compute_tane_lighting(frame, u_light_diffuse, u_light_specular, vecToLight);
 
   float shadowFactor = getShadowFactor();
-  output.diffColor *= shadowFactor;
-  output.specColor *= shadowFactor;
+  lightOutput.diffColor *= shadowFactor;
+  lightOutput.specColor *= shadowFactor;
 
   // Add ambient.
-  output.diffColor += u_mat_diffuse * u_light_ambient;
+  lightOutput.diffColor += u_mat_diffuse * u_light_ambient;
 
-  output.diffColor += u_mat_emissive;
+  lightOutput.diffColor += u_mat_emissive;
 
   // output.diffColor.a = u_mat_diffuse.a;
 
-  return output;
+  return lightOutput;
 }
 //: param auto channel_basecolor 
 uniform SamplerSparse basecolor_tex;
